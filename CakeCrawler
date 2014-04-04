@@ -1,0 +1,27 @@
+from bs4 import BeautifulSoup
+from Crawler import Crawler
+from Cake import Cake
+
+class CakeCrawler(Crawler):
+    def __init__(self, links_to_crawl):
+        self.to_crawl_queue = links_to_crawl
+        self.crawled = []
+        self.cake_list = []
+
+    def crawl_link(self, cake_link):
+        cake_url = self.open(cake_link)
+        cake_page = self.get_page(cake_url)
+        soup = BeautifulSoup(cake_page)
+
+        tag = soup.find('img', {'id' : 'main'})
+        title = tag['title']
+        src = tag['src']
+
+        tag = soup.find('span', {'itemprop' : 'price'})
+        price = tag.string
+
+        tag = soup.find('div', {'id' : 'modal_description'})
+        desc = tag.string
+
+        cake = Cake(title, cake_link, price, desc, src)
+        self.cake_list.append(cake)
