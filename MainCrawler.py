@@ -11,11 +11,19 @@ class MainCrawler(Crawler):
         link_url = self.open(link)
         link_page = self.get_page(link_url)
         soup = BeautifulSoup(link_page)
+
+        for url in soup.find_all('link', {'rel' : 'next'}):
+            fetched_link = url.get('href')
+            if fetched_link:
+                fetched_link = self.convert_to_absolute(link_url.geturl(), fetched_link)
+                self.to_crawl_queue.append(fetched_link)
         
         for url in soup.find_all("a", "disable-click"):
             fetched_link = url.get("href")
             if fetched_link:
                 fetched_link = self.convert_to_absolute(link_url.geturl(), fetched_link)
-                self.crawled.append(link)
                 self.cake_list.append(fetched_link)
+
+        self.crawled.append(link)
+        
             
